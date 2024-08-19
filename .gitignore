@@ -1,0 +1,11 @@
+original_data/
+Processed_data/
+tables_for_paper/
+
+*.xlsx
+
+.venv/
+
+# ignore ipynb related files
+*.ipynb_checkpoints/
+*.DS_Store
