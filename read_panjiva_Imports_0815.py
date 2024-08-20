@@ -64,10 +64,10 @@ def main():
                 fileData.append(df)
         importus = pd.concat(fileData)
         #Save importus as csv file
-        importus.to_csv(f"/Users/qianqiantang/Desktop/panjiva-code-main/Processed_data/{file.stem}.csv", index=False)
+        importus.to_csv(f"/Users/qianqiantang/Desktop/panjiva-code-main/Processed_data/USImport/{file.stem}.csv", index=False)
         #sample's first 10000 rows
         sample = importus.head(10000)
-        sample.to_csv(f"/Users/qianqiantang/Desktop/panjiva-code-main/Processed_data/USimport/{file.stem}_sample.csv", index=False)
+        sample.to_csv(f"/Users/qianqiantang/Desktop/panjiva-code-main/Processed_data/USImport_sample/{file.stem}_sample.csv", index=False)
 
 
     end_time = time.time()
