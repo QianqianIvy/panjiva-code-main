@@ -1,3 +1,4 @@
+# %%
 #Packages needed to run code
 import pandas as pd
 from pathlib import Path
@@ -45,10 +46,11 @@ def main():
                           'placeOfReceipt', 'transportMethod', 'vessel', 'vesselVoyageId', 'vesselIMO','isContainerized', 'volumeTEU', 'quantity', 'measurement', 'weightKg', 'weightT',
                           'weightOriginalFormat', 'valueOfGoodsUSD', 'FROB', 'manifestNumber', 'inbondCode', 'numberOfContainers', 'hasLCL', 'fileDate']
             #Drop columns that won't be necessary
-                df.drop(columns= ['conPanjivaId', 'conRoute', 'conRoute', 'conCity', 'conStateRegion', 'conPostalCode', 'billOfLadingNumber', 'shpFullAddress', 'shpRoute', 'shpCity', 'shpStateRegion', 'shpPostalCode', 
-                           'shpOriginalFormat', 'carrier', 'notifyParty', 'notifyPartySCAC', 'billOfLadingType', 'masterBillOfLadingNumber', 'shpmtOrigin', 'shpmtDestination', 'shpmtDestinationRegion',
+                df.drop(columns= ['billOfLadingNumber', 'conFullAddress', 'conRoute', 'conCity', 'conStateRegion', 'conPostalCode',
+                          'conOriginalFormat', 'shpName', 'shpFullAddress', 'shpRoute', 'shpCity', 'shpStateRegion', 'shpPostalCode', 'shpOriginalFormat',
+                          'carrier', 'notifyParty', 'notifyPartySCAC', 'billOfLadingType', 'masterBillOfLadingNumber', 'shpmtOrigin', 'shpmtDestinationRegion',
                           'portOfUnlading', 'portOfUnladingRegion', 'portOfLading', 'portOfLadingRegion', 'portOfLadingCountry',
-                          'placeOfReceipt', 'transportMethod', 'vessel', 'vesselVoyageId', 'vesselIMO','isContainerized', 'weightT',
+                          'placeOfReceipt', 'transportMethod', 'vessel', 'vesselVoyageId', 'vesselIMO','isContainerized', 'quantity', 'measurement', 'weightKg', 'weightT',
                           'weightOriginalFormat', 'valueOfGoodsUSD', 'FROB', 'manifestNumber', 'inbondCode', 'numberOfContainers', 'hasLCL', 'fileDate'], inplace=True)
              # Convert arrivalDate to datetime  
                 df['arrivalDate'] = pd.to_datetime(df['arrivalDate'], format="%Y-%m-%d %H:%M:%S", errors='coerce')
@@ -67,6 +69,10 @@ def main():
     #masterList.to_excel('/Users/qianqiantang/Desktop/panjiva-code-main/Processed_data/PanjivaUSImports.xlsx')
     #Save masterList as Stata data file
         importus.to_stata(f"/Users/qianqiantang/Desktop/panjiva-code-main/Processed_data/{file.stem}.dta", version = 118)
+        #sample's first 10000 rows
+        sample = importus.head(10000)
+        sample.to_stata(f"/Users/qianqiantang/Desktop/panjiva-code-main/Processed_data/USimport/{file.stem}_sample.dta", version = 118)
+
 
     end_time = time.time()
     print(f"Execution time: {end_time - start_time} seconds")
@@ -75,3 +81,4 @@ def main():
 if __name__ == '__main__':
     main()
     
+# %%
