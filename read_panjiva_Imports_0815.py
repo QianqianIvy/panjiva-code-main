@@ -63,15 +63,11 @@ def main():
                 df.drop(columns= ['arrivalDate'], inplace=True)
                 fileData.append(df)
         importus = pd.concat(fileData)
-    #masterList["importer"] = [1]*len(masterList)
-    #masterList.drop_duplicates(inplace=True)
-    #Save masterList as excel file
-    #masterList.to_excel('/Users/qianqiantang/Desktop/panjiva-code-main/Processed_data/PanjivaUSImports.xlsx')
-    #Save masterList as Stata data file
-        importus.to_stata(f"/Users/qianqiantang/Desktop/panjiva-code-main/Processed_data/{file.stem}.dta", version = 118)
+        #Save importus as csv file
+        importus.to_csv(f"/Users/qianqiantang/Desktop/panjiva-code-main/Processed_data/{file.stem}.csv", index=False)
         #sample's first 10000 rows
         sample = importus.head(10000)
-        sample.to_stata(f"/Users/qianqiantang/Desktop/panjiva-code-main/Processed_data/USimport/{file.stem}_sample.dta", version = 118)
+        sample.to_csv(f"/Users/qianqiantang/Desktop/panjiva-code-main/Processed_data/USimport/{file.stem}_sample.csv", index=False)
 
 
     end_time = time.time()
