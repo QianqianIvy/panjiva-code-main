@@ -59,9 +59,11 @@ importus = pd.concat(fileData)
 importus = importus.groupby(['year', 'month', 'conName', 'conPanjivaId', 'shpPanjivaId', 'conCountry', 'shpCountry', 'shpmtDestination']).agg({'volumeTEU': 'sum'}).reset_index()
 print(importus.head(10))
 
+# change columns names to lower case
+importus.columns = importus.columns.str.lower()
+
 # export importus into csv file
 importus.to_csv('/Users/qianqiantang/Desktop/panjiva-code-main/Processed_data/USImport/monthly/USImport_monthly.csv', index=False)
-
 
 
 #calculate the time it takes to run the code
