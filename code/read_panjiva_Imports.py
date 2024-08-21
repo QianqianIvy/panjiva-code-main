@@ -48,7 +48,7 @@ def main():
             #Drop columns that won't be necessary
                 df.drop(columns= ['billOfLadingNumber', 'conFullAddress', 'conRoute', 'conCity', 'conStateRegion', 'conPostalCode',
                           'conOriginalFormat', 'shpName', 'shpFullAddress', 'shpRoute', 'shpCity', 'shpStateRegion', 'shpPostalCode', 'shpOriginalFormat',
-                          'carrier', 'notifyParty', 'notifyPartySCAC', 'billOfLadingType', 'masterBillOfLadingNumber', 'shpmtOrigin', 'shpmtDestinationRegion',
+                          'carrier', 'notifyParty', 'notifyPartySCAC', 'billOfLadingType', 'masterBillOfLadingNumber', 'shpmtDestinationRegion',
                           'portOfUnlading', 'portOfUnladingRegion', 'portOfLading', 'portOfLadingRegion', 'portOfLadingCountry',
                           'placeOfReceipt', 'transportMethod', 'vessel', 'vesselVoyageId', 'vesselIMO','isContainerized', 'quantity', 'measurement', 'weightKg', 'weightT',
                           'weightOriginalFormat', 'valueOfGoodsUSD', 'FROB', 'manifestNumber', 'inbondCode', 'numberOfContainers', 'hasLCL', 'fileDate'], inplace=True)
