@@ -6,12 +6,11 @@ from pathlib import Path
 import time
 import numpy as np
 #****READ ME****
-#This Python file reads a Panjiva US Import data file (in text format) and creates an excel spreadsheet with this information
+#This Python file reads a Panjiva US Import data file (in text format) and creates an csv spreadsheet with this information
 #Numbers are changed to numeric type if they are not used as identifiers
 #Column names were also added to the dataframe
 #Dataframe is saved as an excel spreadsheet
-#Make sure to change data path and saving path before running as the default paths are not universal - Yuritzy Ramos
-
+#Qianqian(Ivy) Tang
 #function for removing repeated values in one blank of hsCode, they contribute to strange long hsCode
 def remove_duplicates(input_string):
     elements = input_string.split(';')
