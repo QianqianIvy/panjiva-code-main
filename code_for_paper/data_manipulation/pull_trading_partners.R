@@ -1,3 +1,4 @@
+# Appendix A4 and A5: importing and exporting countries 
 library(lubridate)
 library(tidyverse)
 library(DBI)
@@ -75,7 +76,7 @@ import_2018 = merge(x = import_2018, y = trading_partners_impo, by = "conpanjiva
 cat_na_imp =import_2018 %>%
   filter(is.na(categories))
 
-summary_imp = import_2018 %>%  
+summary_imp = import_2018 %>%
   group_by(categories) %>%
   summarize(total_teu = volumeteu) %>%
   mutate(shipments = 1) %>%
