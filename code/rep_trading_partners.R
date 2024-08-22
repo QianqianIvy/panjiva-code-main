@@ -72,27 +72,27 @@ import_us$Date <- NULL
 tail(import_us) # nolint
 
 # summarize volumeteu by conpanjivaid, year, quater shppanjivaid
-import_us_quater <- import_us %>%
+import_us_quarter <- import_us %>%
   group_by(conpanjivaid, year, quarter, shppanjivaid, shpmtdestination, concountry, shpcountry, conname) %>% #nolint
-  summarise(volumeteu_quater = sum(volumeteu))
+  summarise(volumeteu_quarter = sum(volumeteu))
 
-tail(import_us_quater) # nolint
+tail(import_us_quarter) # nolint
 
 # calculate the number of distinct shppanjivaid for each conpanjivaid by year by quater
-trading_partners_quater <- import_us %>%
+trading_partners_quarter <- import_us %>%
   filter(concountry == "United States" | is.null(concountry)) %>%
   #filter if conpanjivaid, shppanjivaid ==999
   filter(conpanjivaid != 999 & shppanjivaid != 999) %>%
   group_by(conpanjivaid, year, quarter) %>%
-  summarise(count_quater = n_distinct(shppanjivaid))
+  summarise(count_quarter = n_distinct(shppanjivaid))
 
 # cut the count into categories
-trading_partners_quater$categories_quater = cut(trading_partners_quater$count_quater, breaks = c(0, 1,4,9, 24, 49, 200)) #nolint
+trading_partners_quarter$categories_quarter = cut(trading_partners_quarter$count_quarter, breaks = c(0, 1,4,9, 24, 49, 200)) #nolint
 
 # merge the trading_partners with import_us
-import_us_quater = merge(x = import_us_quater, y = trading_partners_quater, by = c("conpanjivaid", "year", "quarter"), all = TRUE) #nolint
+import_us_quarter = merge(x = import_us_quarter, y = trading_partners_quarter, by = c("conpanjivaid", "year", "quarter"), all = TRUE) #nolint
 
 tail(import_us_quater) # nolint
 
 # save import_us_quater as import_us_quater.csv
-write.csv(import_us_quater, "import_us_quater.csv")
+write.csv(import_us_quater, "import_us_quarter.csv")
