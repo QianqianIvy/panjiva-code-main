@@ -47,4 +47,3 @@ teu_data2 = function(df) {
     arrange(month)
   return(w)
 }
-

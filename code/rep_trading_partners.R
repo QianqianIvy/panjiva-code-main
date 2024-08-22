@@ -6,30 +6,57 @@ library(quantmod)
 
 # set up data directory to the below path
 #/Users/qianqiantang/Desktop/panjiva-code-main/Processed_data/USImport/monthly
-setwd("/Users/qianqiantang/Desktop/panjiva-code-main/Processed_data/USImport/monthly")
+setwd("/Users/qianqiantang/Desktop/panjiva-code-main/Processed_data/USImport/monthly") #nolint
 
 # input USImport_monthly.csv as import_us
 import_us <- read_csv("USImport_monthly.csv")
 
-# calculate the number of distinct shppanjivaid for each conpanjivaid by year by month
+# calculate the number of distinct shppanjivaid for each conpanjivaid by year by month #nolint
 trading_partners <- import_us %>%
   filter(concountry == "United States" | is.null(concountry)) %>%
   #filter if conpanjivaid, shppanjivaid ==999
   filter(conpanjivaid != 999 & shppanjivaid != 999) %>%
   group_by(conpanjivaid, year, month) %>%
   summarise(count = n_distinct(shppanjivaid))
-  
+
 # cut the count into categories
-trading_partners$categories = cut(trading_partners$count, breaks = c(0, 1,4,9, 24, 49, 200))
+trading_partners$categories = cut(trading_partners$count, breaks = c(0, 1,4,9, 24, 49, 200)) #nolint
 
 # merge the trading_partners with import_us
-import_us = merge(x = import_us, y = trading_partners, by = c("conpanjivaid", "year", "month"), all = TRUE)
+import_us = merge(x = import_us, y = trading_partners, by = c("conpanjivaid", "year", "month"), all = TRUE) #nolint
 
-# filter the NA categories
-cat_na <- import_us %>%
-  filter(is.na(categories))
+# show the last 10 rows of import_us
+# tail(import_us) # nolint
 
-# show the first ten rows of import_us
-head(import_us)
+# save import_us as import_us.csv
+write.csv(import_us, "import_us_monthly.csv")
+
+###############################################################################
+# this is base on annual data
+
+# summarize volumeteu by conpanjivaid, year, shppanjivaid. 
+# keep all of other columns and save as import_us_annual
+import_us_annual <- import_us %>%
+  group_by(conpanjivaid, year, shppanjivaid, shpmtdestination, concountry, shpcountry, conname) %>% #nolint
+  summarise(volumeteu_annual = sum(volumeteu))
+
+# calculate the number of distinct shppanjivaid for each conpanjivaid by year
+trading_partners_annual <- import_us %>%
+  filter(concountry == "United States" | is.null(concountry)) %>%
+  #filter if conpanjivaid, shppanjivaid ==999
+  filter(conpanjivaid != 999 & shppanjivaid != 999) %>%
+  group_by(conpanjivaid, year) %>%
+  summarise(count_annual = n_distinct(shppanjivaid))
+
+# cut the count into categories
+trading_partners_annual$categories_annual = cut(trading_partners_annual$count_annual, breaks = c(0, 1,4,9, 24, 49, 200)) #nolint
+
+# merge the trading_partners with import_us
+import_us_annual = merge(x = import_us_annual, y = trading_partners_annual, by = c("conpanjivaid", "year"), all = TRUE) #nolint
+
+# save import_us_annual as import_us_annual.csv
+write.csv(import_us_annual, "import_us_annual.csv")
 
 
+############################################################################################################ nolint
+# this is base on quater data
