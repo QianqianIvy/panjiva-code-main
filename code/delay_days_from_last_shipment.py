@@ -20,21 +20,28 @@ for file in files:
     df = pd.read_csv(file)
 
     # drop rows with non numeric conPanjivaId and shpPanjivaId and keep NA/NaN
-    df['conPanjivaId'] = df['conPanjivaId'].fillna(999)
-    df['shpPanjivaId'] = df['shpPanjivaId'].fillna(999)
-    # Ensure the column is of string type
+    # df['conPanjivaId'] = df['conPanjivaId'].fillna(999)
+    # df['shpPanjivaId'] = df['shpPanjivaId'].fillna(999)
+
+    # drop rows with non numeric conPanjivaId and shpPanjivaId
     df['conPanjivaId'] = df['conPanjivaId'].astype(str)
     df['shpPanjivaId'] = df['shpPanjivaId'].astype(str)
-    # drop rows with non numeric conPanjivaId and shpPanjivaId
+
     df = df[df['conPanjivaId'].str.isnumeric()]
     df = df[df['shpPanjivaId'].str.isnumeric()]
 
+     #change conPanjivaId, shpPanjivaId, year, month, day to int
+
+    df['conPanjivaId'] = pd.to_numeric(df['conPanjivaId'], errors='coerce').astype('Int64')
+    df['shpPanjivaId'] = pd.to_numeric(df['shpPanjivaId'], errors='coerce').astype('Int64')
+    
     #change conPanjivaId, shpPanjivaId, year, month, day to int
-    df['conPanjivaId'] = df['conPanjivaId'].astype(int)
-    df['shpPanjivaId'] = df['shpPanjivaId'].astype(int)
-    df['year'] = df['year'].fillna(999).astype(int)
-    df['month'] = df['month'].fillna(999).astype(int)
-    df['day'] = df['day'].fillna(999).astype(int)
+    df['year'] = pd.to_numeric(df['year'], errors='coerce').astype('Int64')
+    df['month'] = pd.to_numeric(df['month'], errors='coerce').astype('Int64')
+    df['day'] = pd.to_numeric(df['day'], errors='coerce').astype('Int64')
+
+    # drop if year month day is na/nan
+    df = df.dropna(subset=['year', 'month', 'day'])
 
     #Add the file to the list
     fileData.append(df)
@@ -42,10 +49,7 @@ for file in files:
 #concatenate all files in files
 importus = pd.concat(fileData)
 
-# drop if year month day is 999
-importus = importus[importus['year'] != 999]
-importus = importus[importus['month'] != 999]
-importus = importus[importus['day'] != 999]
+
 
 # caculater the days from last shipment
 importus['date_str'] = importus['year'].astype(str) + importus['month'].astype(str).str.zfill(2) + importus['day'].astype(str).str.zfill(2)
@@ -67,22 +71,18 @@ print(importus.head(10))
 # # print the number of missing values in days_from_last_shipment
 # print(importus['days_from_last_shipment'].isnull().sum())
 
-# drop volumeTEU and PanjivaId columns
-importus_try = importus.drop(columns=['panjivaRecordId'])
-print(importus_try.shape)
-importus_try = importus.drop(columns=['volumeTEU'])
-print(importus_try.shape)
+# drop volumeTEU and panjivaRecordId columns
+importus_try = importus.drop(columns=['panjivaRecordId', 'volumeTEU'])
+print(f"importus_try shape is {importus_try.shape}")
+print(f"importus' shape is {importus.shape}")
+
 
 # duplicate rows
 importus_try = importus_try.drop_duplicates()
-print(importus_try.shape)
-
-# drop if shpPanjivaId, conPanjivaId is 999
-importus_try = importus_try[importus_try['shpPanjivaId'] != 999]
-importus_try = importus_try[importus_try['conPanjivaId'] != 999]
+print(f"importus_try shape is {importus_try.shape}")
 
 # keep if conCountry is US or null
-importus_try = importus_try[(importus_try['conCountry'] == 'US')| (importus_try['conCountry'].isnull())]
+importus_try = importus_try[(importus_try['conCountry'] == 'United States')| (importus_try['conCountry'].isnull())]
 
 # save importus_try into csv file
 importus_try.to_csv('/Users/qianqiantang/Desktop/panjiva-code-main/Processed_data/USImport/delay_days.csv', index=False)
@@ -96,10 +96,17 @@ print(importus['conPanjivaId'].nunique())
 print(importus.groupby(['conPanjivaId', 'shpPanjivaId']).size().reset_index().shape[0])
 
 #print the number of conPanjivaID is 999 in import_us
-print(importus[importus['conPanjivaId'] == 999].shape[0])
+print(importus[importus['conPanjivaId'].isnull].shape[0])
 
 # print the number of conName is null in import_us
 print(importus[importus['conName'].isnull()].shape[0])
+
+# Assuming 'df' is your DataFrame and 'days_from_last_shipment' is the column of interest
+importus_try['days_from_last_shipment'].describe()
+
+# count the number of the missing values in 'days_from_last_shipment'
+importus_try['days_from_last_shipment'].isnull().sum()
+
 # %%
 
 #Packages needed to run code
