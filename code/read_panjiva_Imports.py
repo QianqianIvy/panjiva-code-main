@@ -46,8 +46,7 @@ def main():
                           'placeOfReceipt', 'transportMethod', 'vessel', 'vesselVoyageId', 'vesselIMO','isContainerized', 'volumeTEU', 'quantity', 'measurement', 'weightKg', 'weightT',
                           'weightOriginalFormat', 'valueOfGoodsUSD', 'FROB', 'manifestNumber', 'inbondCode', 'numberOfContainers', 'hasLCL', 'fileDate']
             #Drop columns that won't be necessary
-                df.drop(columns= ['billOfLadingNumber', 'conFullAddress', 'conRoute', 'conCity', 'conStateRegion', 'conPostalCode',
-                          'conOriginalFormat', 'shpName', 'shpFullAddress', 'shpRoute', 'shpCity', 'shpStateRegion', 'shpPostalCode', 'shpOriginalFormat',
+                df.drop(columns= ['billOfLadingNumber', 'conOriginalFormat', 'shpName', 'shpFullAddress', 'shpRoute', 'shpCity', 'shpStateRegion', 'shpPostalCode', 'shpOriginalFormat',
                           'carrier', 'notifyParty', 'notifyPartySCAC', 'billOfLadingType', 'masterBillOfLadingNumber', 'shpmtDestinationRegion',
                           'portOfUnlading', 'portOfUnladingRegion', 'portOfLading', 'portOfLadingRegion', 'portOfLadingCountry',
                           'placeOfReceipt', 'transportMethod', 'vessel', 'vesselVoyageId', 'vesselIMO','isContainerized', 'quantity', 'measurement', 'weightKg', 'weightT',
@@ -64,10 +63,10 @@ def main():
                 fileData.append(df)
         importus = pd.concat(fileData)
         #Save importus as csv file
-        importus.to_csv(f"/Users/qianqiantang/Desktop/panjiva-code-main/Processed_data/USImport/{file.stem}.csv", index=False)
-        #sample's first 10000 rows
-        sample = importus.head(10000)
-        sample.to_csv(f"/Users/qianqiantang/Desktop/panjiva-code-main/Processed_data/USImport_sample/{file.stem}_sample.csv", index=False)
+        importus.to_csv(f"/Users/qianqiantang/Desktop/panjiva-code-main/Processed_data/USImport/{file.stem}_address.csv", index=False)
+        # #sample's first 10000 rows
+        # sample = importus.head(10000)
+        # sample.to_csv(f"/Users/qianqiantang/Desktop/panjiva-code-main/Processed_data/USImport_sample/{file.stem}_sample.csv", index=False)
 
 
     end_time = time.time()
