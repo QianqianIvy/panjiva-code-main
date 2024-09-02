@@ -13,7 +13,8 @@ def main():
     start_time = time.time()
 
     #Path to panjiva data files directory/folder
-    directory = '/Users/qianqiantang/Desktop/panjiva-code-main/original_data/PanjivaUSImport'
+    directory = '/Users/qianqiantang/Desktop/panjiva-code-main/original_data/PanjivaUSImport/Panjiva2015-2019'
+    # directory = '/Users/qianqiantang/Desktop/panjiva-code-main/original_data/PanjivaUSImport'
     #To read existing files in the folder
     files = Path(directory).glob('*.txt')
     #For each file in the folder
