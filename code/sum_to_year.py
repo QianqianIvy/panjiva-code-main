@@ -91,9 +91,9 @@ aggregated_df = aggregated_df.rename(columns={'volumeTEU': 'Total_teu'})
 importus = importus.merge(aggregated_df, on=['year', 'conName', 'conPanjivaId', 'shpPanjivaId', 'conCountry', 'shpCountry', 'shpmtDestination', 'conFullAddress', 'conRoute', 'conCity', 'conStateRegion', 'conPostalCode'], how='left')
 
 # duplicate into paris level and year level
-importus = importus.drop(columns=['panjivaRecordId', 'date', 'month', 'day', 'volumeteu'])
-importus = importus.drop_duplicates()
-importus.head()
+# importus = importus.drop(columns=['panjivaRecordId', 'date', 'month', 'day', 'volumeteu'])
+# importus = importus.drop_duplicates()
+# importus.head()
 
 
 # calculate the number of distinct shpPanjivaId for each conPanjivaId by year
@@ -107,7 +107,7 @@ importus.columns = importus.columns.str.lower()
 importus = importus[(importus['concountry'] == 'United States')| (importus['concountry'].isnull())]
 
 # export importus into csv file
-importus.to_csv('/Users/qianqiantang/Desktop/panjiva-code-main/Processed_data/USImport/monthly/USImport_annual.csv', index=False)
+importus.to_csv('/Users/qianqiantang/Desktop/panjiva-code-main/Processed_data/USImport/monthly/USImport_annual_2015-2024.csv', index=False)
 
 
 #calculate the time it takes to run the code
