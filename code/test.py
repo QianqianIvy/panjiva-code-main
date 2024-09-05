@@ -34,3 +34,19 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+# %%
+
+#Packages needed to run code
+import pandas as pd
+from pathlib import Path
+
+# read the csv file
+df = pd.read_csv('/Users/qianqiantang/Desktop/panjiva-code-main/Processed_data/USImport/2015-2019/PanjivaUSImport2015To2019_address.csv')
+
+df.head()
+# %%
+df2 = pd.read_csv('/Users/qianqiantang/Desktop/panjiva-code-main/Processed_data/USImport/annual/USImport_2015.csv')
+
+df2.head()
+# %%
