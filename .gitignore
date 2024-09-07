@@ -1,6 +1,7 @@
 original_data/
 Processed_data/
 tables_for_paper/
+Result/
 
 *.xlsx
 
