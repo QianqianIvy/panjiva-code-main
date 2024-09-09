@@ -109,7 +109,10 @@ for y in years:
     df_year = pd.read_csv(filepath)
     #sum volumeTEU by year, month, conPanjivaId and shpPanjivaId but also keep other columns
     # aggregate the volumeTEU by year, conName, conPanjivaId, shpPanjivaId, conCountry, shpCountry, shpmtDestination, conFullAddress, conRoute, conCity, conStateRegion, conPostalCode
-    aggregated_df_year = df_year.groupby(['conName', 'conPanjivaId', 'shpPanjivaId', 'conCountry', 'shpCountry', 'shpmtDestination', 'conFullAddress', 'conRoute', 'conCity', 'conStateRegion', 'conPostalCode']).agg({'volumeTEU': 'sum'}).reset_index()
+    aggregated_df_year = df_year.groupby(['conName', 'conPanjivaId', 'shpPanjivaId', 
+                                          'conCountry', 'shpCountry', 'shpmtDestination', 
+                                          'conFullAddress', 'conRoute', 'conCity', 'conStateRegion', 
+                                          'conPostalCode']).agg({'volumeTEU': 'sum'}).reset_index()
     aggregated_df_year = aggregated_df_year.rename(columns={'volumeTEU': 'Total_teu'})
     df_year = df_year.merge(aggregated_df_year, on=['conName', 'conPanjivaId', 'shpPanjivaId', 'conCountry', 'shpCountry', 'shpmtDestination', 'conFullAddress', 'conRoute', 'conCity', 'conStateRegion', 'conPostalCode'], how='left')
 
