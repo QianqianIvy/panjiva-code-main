@@ -94,7 +94,8 @@ data_shp_per_con_pivot['year'] = data_shp_per_con_pivot['year'].astype(int)
 data_shp_per_con_pivot['month'] = data_shp_per_con_pivot['month'].astype(int)
 data_shp_per_con_pivot['date'] = pd.to_datetime(data_shp_per_con_pivot[['year', 'month']].assign(day=1))
 data_shp_per_con_pivot = data_shp_per_con_pivot.dropna(subset=['yoy_growth_rate'])
-
+data_shp_per_con.to_csv('monthly_ave_shp_per_con.csv')
+data_shp_per_con_pivot.to_csv('yoy_shp_per_con.csv')
 # %%
 # figure 8
 # Assuming data_shp_per_con_chart is a DataFrame
