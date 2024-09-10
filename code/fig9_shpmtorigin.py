@@ -338,7 +338,7 @@ shpmtorigin_daily = pd.read_csv('/Users/qianqiantang/Desktop/panjiva-code-main/R
 shpmtorigin_monthly = shpmtorigin_daily.groupby(['year', 'month', 'shpmtOrigin'])['num_of_ship'].sum().reset_index()
 shpmtorigin_monthly['total_monthly_shpmt'] = shpmtorigin_monthly.groupby(['year', 'month'])['num_of_ship'].transform('sum')
 shpmtorigin_monthly['percentage_origin'] = shpmtorigin_monthly['num_of_ship'] / shpmtorigin_monthly['total_monthly_shpmt']
-# %%
+
 # high frequency trade partners ['percentage_origin']>=0.05
 china_monthly = shpmtorigin_monthly[shpmtorigin_monthly['shpmtOrigin'] == 'China'].sort_values(by=['year', 'month'])
 southkorea_monthly = shpmtorigin_monthly[shpmtorigin_monthly['shpmtOrigin'] == 'South Korea'].sort_values(by=['year', 'month'])
@@ -352,7 +352,7 @@ world_monthly = shpmtorigin_monthly[['year', 'month', 'total_monthly_shpmt']].dr
 
 # rename world_monthly['total_monthly_shpmt'] to 'num_of_ship'
 world_monthly = world_monthly.rename(columns={'total_monthly_shpmt': 'num_of_ship'})
-# %%
+
 # List of trade partners' monthly dataframes and their corresponding names
 trade_partners = {
     'world': world_monthly, 'china': china_monthly, 'southkorea': southkorea_monthly,
@@ -405,77 +405,85 @@ print(trading_partners_shp_frequency.head())
 import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
+import matplotlib.dates as mdates
+from matplotlib.dates import DateFormatter
 
 # Assume df is your DataFrame with 'country', 'year', 'month', and 'num_ship' columns
 
 # Create the plot
-plt.figure(figsize=(15, 10))
+fig, ax = plt.subplots(figsize=(15, 10))
 
 # Use seaborn's lineplot to draw multiple lines, one for each country
-sns.lineplot(data=trading_partners_shp_frequency, x='date', y='yoy_growth_rate_num_of_ship', hue='shpmtOrigin', marker='o')
+sns.lineplot(data=trading_partners_shp_frequency, x='date', y='yoy_growth_rate_num_of_ship', hue='shpmtOrigin', marker='o', ax=ax)
 
 # Customize the labels, legend, and themes
 # NO NEED TO SET X AND Y LABELS
-plt.xlabel("")
-plt.ylabel("")
-plt.title("Shipments by Country", fontsize=16)
-plt.legend(title="shpmtOrigin", title_fontsize='large', fontsize='large')
-plt.xticks(rotation=45)
-
+ax.set_xlabel("")
+ax.set_ylabel("")
+ax.set_title("Shipments by Country", fontsize=16)
+ax.legend(title="shpmtOrigin", title_fontsize='large', fontsize='large')
 
 # Tilt x-axis labels
 plt.xticks(rotation=45)
+
 # Set the x and y axis scales
 ax.set_xlim(pd.to_datetime("2020-01-01"), pd.to_datetime("2024-05-01"))
 ax.xaxis.set_major_locator(mdates.MonthLocator(interval=6))
-ax.xaxis.set_major_formatter(DateFormatter("%b"))
-ax.set_ylim(50, 500)
-ax.set_yticks(range(50, 500, 20))
+ax.xaxis.set_major_formatter(DateFormatter("%b%y"))
+ax.set_ylim(-100, 120)
+ax.set_yticks(range(-100, 120, 20))
 
 # Customize the legend position and size
-ax.legend(loc='lower right', bbox_to_anchor=(0.6, 0.8), ncol=1, fontsize='small', title="Legend", title_fontsize='small')
-# add note at the bottom left under the x axis label
+ax.legend(loc='upper center', bbox_to_anchor=(0.6, 0.8), ncol=1, fontsize='small', title="shpmtOrigin", title_fontsize='small')
+
+# Add note at the bottom left under the x-axis label
 plt.text(0, -0.1, "Note: Percent change from same month in 2019", fontsize=8, ha='left', transform=ax.transAxes)
 
 # Show the plot
 plt.show()
-fig.savefig('/Users/qianqiantang/Desktop/panjiva-code-main/Result/trading_partner.png')
+
+# Save the figure
+fig.savefig('/Users/qianqiantang/Desktop/panjiva-code-main/Result/trading_partner_monthly.png')
+
 
 # %%
 # only world, china, hk, southkorea, taiwan
 # List of trade partners' monthly dataframes and their corresponding names
 trade_partners_main = trading_partners_shp_frequency[trading_partners_shp_frequency['shpmtOrigin'].isin(['world', 'china', 'vietnam'])]
+
 # %%
 # Create the plot
-plt.figure(figsize=(15, 10))
+fig, ax = plt.subplots(figsize=(15, 10))
 
 # Use seaborn's lineplot to draw multiple lines, one for each country
 sns.lineplot(data=trade_partners_main, x='date', y='yoy_growth_rate_num_of_ship', hue='shpmtOrigin', marker='o')
 
 # Customize the labels, legend, and themes
 # NO NEED TO SET X AND Y LABELS
-plt.xlabel("")
-plt.ylabel("")
-plt.title("Shipments by Country", fontsize=16)
-plt.legend(title="shpmtOrigin", title_fontsize='large', fontsize='large')
-plt.xticks(rotation=45)
-
+ax.set_xlabel("")
+ax.set_ylabel("")
+ax.set_title("Shipments by Country", fontsize=16)
+ax.legend(title="shpmtOrigin", title_fontsize='large', fontsize='large')
 
 # Tilt x-axis labels
 plt.xticks(rotation=45)
+
 # Set the x and y axis scales
 ax.set_xlim(pd.to_datetime("2020-01-01"), pd.to_datetime("2024-05-01"))
 ax.xaxis.set_major_locator(mdates.MonthLocator(interval=6))
-ax.xaxis.set_major_formatter(DateFormatter("%b"))
-ax.set_ylim(50, 500)
-ax.set_yticks(range(50, 500, 20))
+ax.xaxis.set_major_formatter(DateFormatter("%b%y"))
+ax.set_ylim(-100, 120)
+ax.set_yticks(range(-100, 120, 20))
 
 # Customize the legend position and size
-ax.legend(loc='lower right', bbox_to_anchor=(0.6, 0.8), ncol=1, fontsize='small', title="Legend", title_fontsize='small')
-# add note at the bottom left under the x axis label
+ax.legend(loc='upper center', bbox_to_anchor=(0.6, 0.8), ncol=1, fontsize='small', title="shpmtOrigin", title_fontsize='small')
+
+# Add note at the bottom left under the x-axis label
 plt.text(0, -0.1, "Note: Percent change from same month in 2019", fontsize=8, ha='left', transform=ax.transAxes)
 
 # Show the plot
 plt.show()
-fig.savefig('/Users/qianqiantang/Desktop/panjiva-code-main/Result/trading_partner_china_vietnam.png')
+
+# Save the figure
+fig.savefig('/Users/qianqiantang/Desktop/panjiva-code-main/Result/trading_partner_china_vietnam_monthly.png')
 # %%
