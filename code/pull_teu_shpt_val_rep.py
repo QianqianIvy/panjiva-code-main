@@ -6,16 +6,10 @@ import time
 import os
 from statsmodels.tsa.seasonal import seasonal_decompose
 from statsmodels.tsa.seasonal import STL
+import matplotlib.pyplot as plt
+import seaborn as sns
 
-# **Readme
-# This code is for summing the volumeTEU by year, conPanjivaId and shpPanjivaId to get monthly data
 # %%
-
-######################################################
-# Function to perform seasonal decomposition
-# and extract the final adjusted values
-######################################################
-
 # Perform seasonal adjustment with detailed output for debugging
 def seasonal_adjustment(series, start_year):
     try:
@@ -43,57 +37,47 @@ def seasonal_adjustment(series, start_year):
         print(f"Error during seasonal adjustment: {e}")
         return None
 # %%
+# **Readme
+# This code is for summing the volumeTEU by year, conPanjivaId and shpPanjivaId to get monthly data
+# missing value convert to 999, drop rows with non numeric conPanjivaId and shpPanjivaId
+
 #####################################
 # Read raw data
 #####################################
 
 #set timer
 start_time = time.time()
-directory = "/Users/qianqiantang/Desktop/panjiva-code-main/Processed_data/USImport/annual/annual_raw_address"
-
-
-#List to store dataframes
+#read the each csv file in the folder Processed_data/USImport
+directorys = ["/Users/qianqiantang/Desktop/panjiva-code-main/Processed_data/USImport/2015-2019", "/Users/qianqiantang/Desktop/panjiva-code-main/Processed_data/USImport/2020-2024"]
 fileData = []
-fileData_truncted = []
-#For each file in the folder
-# List of years you want to read files for
-years = [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024]
+for directory in directorys:
+    files = Path(directory).glob('*address.csv')
+    #List to store dataframes
+    #For each file in the folder
+    for file in files:
+        print(file)
+        #Read the file
+        df = pd.read_csv(file)
+        df = df[['year', 'month', 'panjivaRecordId', 'volumeTEU']]
+        df[['year', 'month']] = df[[ 'year', 'month']].apply(pd.to_numeric, errors='coerce')
+        # drop if year month day is na/nan
+        df.dropna(subset=['year', 'month'], inplace=True)
 
-for y in years:
-    filename = f'USImport_{y}.csv'  # Assuming the files are in CSV format
-    filepath = os.path.join(directory, filename)
-    df = pd.read_csv(filepath)
-    # keep if conCountry is United Satates and null
-    df = df[(df['conCountry']== 'United States') | (df['conCountry'].isnull())]
-    # drop non necessary columns for figure 1/2
-    df = df.drop(columns=['conName', 'conFullAddress', 'conRoute', 'conCity', 
-                            'conStateRegion', 'conPostalCode', 'conPanjivaId',
-                            'shpPanjivaId', 'shpmtOrigin', 'shpmtDestination', 'day'])
+        #Add the file to the list
+        fileData.append(df)
 
-    #change conPanjivaId, shpPanjivaId, year, month, day to int
-    df[['year', 'month']] = df[['year', 'month']].apply(pd.to_numeric, errors='coerce')
-    # drop if year month day is na/nan
-    df.dropna(subset=['year', 'month'], inplace=True)
+# concatenate all files in files
+importus = pd.concat(fileData)
 
-    # generate the date column
-    df['date'] = pd.to_datetime(df[['year', 'month']].assign(day=1))
-    df = df.drop(columns=['month'])
-
-    # caluclate the sum of volumeTEU and the number of shipments by month
-    teu_data_mon = df.groupby(['year', 'date']).agg({'volumeTEU': 'sum'}).reset_index()
-    shpt_data_mon = df.groupby(['year','date']).agg({'panjivaRecordId': 'count'}).reset_index()
-
-    # merge the two dataframes
-    df = teu_data_mon.merge(shpt_data_mon, on=['date', 'year'], how='left')
-                                                                                         
-    #Add the file to the list
-    fileData.append(df)
+importus['date'] = pd.to_datetime(importus[['year', 'month']].assign(day=1))
+importus['volumeTEU'] = pd.to_numeric(importus['volumeTEU'], errors='coerce')
 
 # %%
-# concatenate all files in files
-data_teu_shpt_val = pd.concat(fileData)
+teu_data_mon = importus.groupby(['year', 'date']).agg({'volumeTEU': 'sum'}).reset_index()
+shpt_data_mon = importus.groupby(['year','date']).agg({'panjivaRecordId': 'count'}).reset_index()
+data_teu_shpt_val = teu_data_mon.merge(shpt_data_mon, on=['date', 'year'], how='left')
 
-# rename volumeTEU to TEU(Panjiva),  panjivaRecordId to Shipments(Panjiva)
+    # rename volumeTEU to TEU(Panjiva),  panjivaRecordId to Shipments(Panjiva)
 data_teu_shpt_val = data_teu_shpt_val.rename(columns={'volumeTEU': 'TEU(Panjiva)', 'panjivaRecordId': 'Shipments(Panjiva)'})
 # %%
 # Perform seasonal decomposition
@@ -118,63 +102,115 @@ data_teu_shpt_val['Shipments(Panjiva)_Adjusted'] = shpt_data_mon_sea.reindex(dat
 # Reset index if needed (to return to original structure)
 data_teu_shpt_val.reset_index(inplace=True)
 data_teu_shpt_val
-
-# %%
-# export data_teu_shpt_val to csv file
 data_teu_shpt_val.to_csv(f'/Users/qianqiantang/Desktop/panjiva-code-main/Result/data_teu_shpt_val.csv', index=False)
-print(data_teu_shpt_val)
 
-# Calculate the time it takes to run the code
+#calculate the time it takes to run the code
 print("--- %s seconds ---" % (time.time() - start_time))
-
-
-
-# %%
-# Draw figure 1 in Flaaen et al. (2023)
-# Packages needed to run code
-import pandas as pd
-import matplotlib.pyplot as plt
-import matplotlib.dates as mdates
-import matplotlib
-import numpy as np
-
-# Caculate the change from 2015-01-01 for TEU(Panjiva)  Shipments(Panjiva)
-data_teu_shpt_val = pd.read_csv('/Users/qianqiantang/Desktop/panjiva-code-main/Result/data_teu_shpt_val.csv')
 
 # %%
 # caculate the change from 2015-01-01
 data_teu_shpt = data_teu_shpt_val.copy()
-data_teu_shpt['TEU(Panjiva)'] = data_teu_shpt_val['TEU(Panjiva)_Adjusted'] / data_teu_shpt_val['TEU(Panjiva)_Adjusted'].iloc[0]
-data_teu_shpt['Shipments(Panjiva)'] = data_teu_shpt_val['Shipments(Panjiva)_Adjusted'] / data_teu_shpt_val['Shipments(Panjiva)_Adjusted'].iloc[0]
+data_teu_shpt['teu'] = 100 *data_teu_shpt_val['TEU(Panjiva)_Adjusted'] / data_teu_shpt_val['TEU(Panjiva)_Adjusted'].iloc[0]
+data_teu_shpt['shp'] = 100 * data_teu_shpt_val['Shipments(Panjiva)_Adjusted'] / data_teu_shpt_val['Shipments(Panjiva)_Adjusted'].iloc[0]
 data_teu_shpt
-# %%
-# plot the figure data_teu_shpt['TEU(Panjiva)'], data_teu_shpt['Shipments(Panjiva)'] , and x axis is date
-# label x axis by year
-fig, ax = plt.subplots()
-ax.plot(data_teu_shpt['date'], data_teu_shpt['TEU(Panjiva)'], label='TEU(Panjiva)', color='blue')
-ax.plot(data_teu_shpt['date'], data_teu_shpt['Shipments(Panjiva)'], label='Shipments(Panjiva)', color='red')
-ax.set_xlabel('Year')
-ax.set_ylabel('Index, 2015-01-01 = 100 (Seasonally Adjusted)')
-ax.legend()
-plt.show()
-fig.savefig('/Users/qianqiantang/Desktop/panjiva-code-main/Result/figure1.png')
 
 # %%
-# plot the figure after 2019-01-01
-data_teu_shpt_2019 = data_teu_shpt[data_teu_shpt['date'] >= '2019-01-01']
-data_teu_shpt_2019['TEU(Panjiva)'] = data_teu_shpt_2019['TEU(Panjiva)_Adjusted'] / data_teu_shpt_2019['TEU(Panjiva)_Adjusted'].iloc[0]
-data_teu_shpt_2019['Shipments(Panjiva)'] = data_teu_shpt_2019['Shipments(Panjiva)_Adjusted'] / data_teu_shpt_2019['Shipments(Panjiva)_Adjusted'].iloc[0]
+import seaborn as sns
+import matplotlib.dates as mdates
+# Define colors
+approved_colors = {
+    "blue": "#1f77b4",
+    "red": "#d62728"
+}
 
+colors = {
+    "TEUs (Panjiva)": approved_colors["blue"],
+    "Shipments (Panjiva)": approved_colors["red"]
+}
+
+# Make charts
+fig, ax = plt.subplots(figsize=(10, 6))
+sns.lineplot(data=data_teu_shpt, x='date', y='teu', ax=ax, label='TEUs (Panjiva)', color=colors["TEUs (Panjiva)"])
+sns.lineplot(data=data_teu_shpt, x='date', y='shp', ax=ax, label='Shipments (Panjiva)', color=colors["Shipments (Panjiva)"])
+
+ax.set(xlabel='', ylabel='', title='Index, 2015 = 100')
+ax.legend(title='Legend', loc='upper left', bbox_to_anchor=(0.3, 0.8))
+ax.set_xlim(pd.Timestamp('2015-01-01'), pd.Timestamp('2024-05-01'))
+ax.set_ylim(90, 170)
+ax.xaxis.set_major_locator(mdates.YearLocator())
+ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y'))
+ax.yaxis.set_major_locator(plt.MultipleLocator(20))
+
+# Save the chart
+plt.savefig("/Users/qianqiantang/Desktop/panjiva-code-main/Result/fig_teu_shpt_val_monthly.png", bbox_inches='tight')
 
 # %%
+############################################
+######### 2015-01-01-2021-01-01
+import seaborn as sns
 
-fig, ax = plt.subplots()
-ax.plot(data_teu_shpt_2019['date'], data_teu_shpt_2019['TEU(Panjiva)'], label='TEU(Panjiva)', color='blue')
-ax.plot(data_teu_shpt_2019['date'], data_teu_shpt_2019['Shipments(Panjiva)'], label='Shipments(Panjiva)', color='red')
-ax.set_xlabel('Year')
-ax.set_ylabel('Index, 2019-01-01 = 100 (Seasonally Adjusted)')
-ax.legend()
-plt.show()
-fig.savefig('/Users/qianqiantang/Desktop/panjiva-code-main/Result/figure2.png')
+# Define colors
+approved_colors = {
+    "blue": "#1f77b4",
+    "red": "#d62728"
+}
+
+colors = {
+    "TEUs (Panjiva)": approved_colors["blue"],
+    "Shipments (Panjiva)": approved_colors["red"]
+}
+
+# Make charts
+fig, ax = plt.subplots(figsize=(10, 6))
+sns.lineplot(data=data_teu_shpt, x='date', y='teu', ax=ax, label='TEUs (Panjiva)', color=colors["TEUs (Panjiva)"])
+sns.lineplot(data=data_teu_shpt, x='date', y='shp', ax=ax, label='Shipments (Panjiva)', color=colors["Shipments (Panjiva)"])
+
+ax.set(xlabel='', ylabel='', title='Index, 2015 = 100')
+ax.legend(title='Legend', loc='upper left', bbox_to_anchor=(0.3, 0.8))
+ax.set_xlim(pd.Timestamp('2015-01-01'), pd.Timestamp('2021-9-01'))
+ax.set_ylim(90, 160)
+ax.xaxis.set_major_locator(mdates.YearLocator())
+ax.xaxis.set_major_formatter(mdates.DateFormatter('%Y'))
+ax.yaxis.set_major_locator(plt.MultipleLocator(20))
+
+# Save the chart
+plt.savefig("/Users/qianqiantang/Desktop/panjiva-code-main/Result/fig_teu_shpt_val_monthly_2021.png", bbox_inches='tight')
+
+# %%
+######## compute missing values in conPanjivaId and shpPanjivaId
+#read the each csv file in the folder Processed_data/USImport
+start_time = time.time()
+
+directorys = ["/Users/qianqiantang/Desktop/panjiva-code-main/Processed_data/USImport/2015-2019", "/Users/qianqiantang/Desktop/panjiva-code-main/Processed_data/USImport/2020-2024"]
+fileData = []
+y = 1
+for directory in directorys:
+    files = Path(directory).glob('*address.csv')
+    #List to store dataframes
+    #For each file in the folder
+    for file in files:
+        print(file)
+        #Read the file
+        df = pd.read_csv(file)
+        df = df[['conPanjivaId', 'shpPanjivaId']].astype(str)
+
+        # count non numeric conPanjivaId and shpPanjivaId for this file
+        print("non numeric conPanjivaId and shpPanjivaId for this file")
+        conpanjivaid_missing = df[~df['conPanjivaId'].str.isnumeric()]['conPanjivaId'].count()
+        shppanjivaid_missing = df[~df['shpPanjivaId'].str.isnumeric()]['shpPanjivaId'].count()
+        conpanjivaid_total = df['conPanjivaId'].count()
+        shppanjivaid_total = df['shpPanjivaId'].count()
+        print(conpanjivaid_missing, shppanjivaid_missing)
+
+        # save conpanjivaid_missing, conpanjivaid_total, shppanjivaid_missing, shppanjivaid_total
+        fileData.append([y, conpanjivaid_missing, conpanjivaid_total, shppanjivaid_missing, shppanjivaid_total])
+        y = y+1
+        y
+# %%
+missing_firm = pd.DataFrame(fileData, columns=['File Order', 'ConPanjivaId_Missing (Non-numeric, Non-NAN)', 'ConPanjivaId_Total (Non-NAN)', 'ShpPanjivaId_Missing (Non-numeric, Non-NAN)', 'ShpPanjivaId_Total  (Non-NAN)'])
+missing_firm['Con Missing Share'] = missing_firm['ConPanjivaId_Missing (Non-numeric, Non-NAN)'] / missing_firm['ConPanjivaId_Total (Non-NAN)']
+missing_firm['Shp Missing Share'] = missing_firm['ShpPanjivaId_Missing (Non-numeric, Non-NAN)'] / missing_firm['ShpPanjivaId_Total  (Non-NAN)']
+missing_firm.to_csv(f'/Users/qianqiantang/Desktop/panjiva-code-main/Result/missing_firm.csv', index=False)
+print("--- %s seconds ---" % (time.time() - start_time))
 
 # %%
