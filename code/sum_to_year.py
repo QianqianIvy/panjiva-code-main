@@ -27,11 +27,7 @@ for directory in directorys:
         df = pd.read_csv(file)
 
         # drop rows with non numeric conPanjivaId and shpPanjivaId
-        # df['conPanjivaId'] = df['conPanjivaId'].astype(str)
-        # df['shpPanjivaId'] = df['shpPanjivaId'].astype(str)
-        
-        # df = df[df['conPanjivaId'].str.isnumeric()]
-        # df = df[df['shpPanjivaId'].str.isnumeric()]
+        #### Important!!! this code also delets NAN values in conPanjivaId and shpPanjivaId
         df = df[df['conPanjivaId'].astype(str).str.isnumeric() & df['shpPanjivaId'].astype(str).str.isnumeric()]
 
 
