@@ -3,7 +3,7 @@
 import pandas as pd
 from pathlib import Path
 import time
-
+import os
 # **Readme
 # This code is for summing the volumeTEU by year, month, conPanjivaId and shpPanjivaId to get monthly data
 # missing value convert to 999, drop rows with non numeric conPanjivaId and shpPanjivaId
@@ -13,57 +13,36 @@ import time
 start_time = time.time()
 #read the each csv file in the folder Processed_data/USImport
 
-directory = "/Users/qianqiantang/Desktop/panjiva-code-main/Processed_data/USImport"
-files = Path(directory).glob('*.csv')
-
-# #read the first file in the folder
-# file = next(files)
-# #print the first 10 rows in the file
-# importus = pd.read_csv(file)
-# print(importus.head(10))
-
 # check if conName and conPanjivaID are unique in pair
 #print(importus[['conName', 'conPanjivaId']].duplicated().any())
 
 #combine all files in files and sum by year and month
 #List to store dataframes
+directory = "/Users/qianqiantang/Desktop/panjiva-code-main/Processed_data/USImport/annual/annual_raw_address"
+
+#List to store dataframes
 fileData = []
+fileData_truncted = []
 #For each file in the folder
-for file in files:
-    print(file)
-    #Read the file
-    df = pd.read_csv(file)
+# List of years you want to read files for
+years = [2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024]
 
-    # drop rows with non numeric conPanjivaId and shpPanjivaId and keep NA/NaN
-    df['conPanjivaId'] = df['conPanjivaId'].fillna(999)
-    df['shpPanjivaId'] = df['shpPanjivaId'].fillna(999)
-    # Ensure the column is of string type
-    df['conPanjivaId'] = df['conPanjivaId'].astype(str)
-    df['shpPanjivaId'] = df['shpPanjivaId'].astype(str)
-    # drop rows with non numeric conPanjivaId and shpPanjivaId
-    df = df[df['conPanjivaId'].str.isnumeric()]
-    df = df[df['shpPanjivaId'].str.isnumeric()]
+for y in years:
+    filename = f'USImport_{y}.csv'  # Assuming the files are in CSV format
+    filepath = os.path.join(directory, filename)
+    print(filepath)
 
-    #change conPanjivaId, shpPanjivaId, year, month, day to int
-    df['conPanjivaId'] = df['conPanjivaId'].astype(int)
-    df['shpPanjivaId'] = df['shpPanjivaId'].astype(int)
-    df['year'] = df['year'].fillna(999).astype(int)
-    df['month'] = df['month'].fillna(999).astype(int)
-    df['day'] = df['day'].fillna(999).astype(int)
+    df = pd.read_csv(filepath)
+    df = df.groupby(['year', 'month', 'conName', 'conPanjivaId', 'shpPanjivaId', 'conCountry', 'shpCountry', 'shpmtDestination']).agg({'volumeTEU': 'sum'}).reset_index()
 
     #Add the file to the list
     fileData.append(df)
 
-#sum volumeTEU by year, month, conPanjivaId and shpPanjivaId but also keep other columns
 importus = pd.concat(fileData)
-importus = importus.groupby(['year', 'month', 'conName', 'conPanjivaId', 'shpPanjivaId', 'conCountry', 'shpCountry', 'shpmtDestination']).agg({'volumeTEU': 'sum'}).reset_index()
 print(importus.head(10))
 
-# change columns names to lower case
-importus.columns = importus.columns.str.lower()
-
 # export importus into csv file
-importus.to_csv('/Users/qianqiantang/Desktop/panjiva-code-main/Processed_data/USImport/monthly/USImport_monthly.csv', index=False)
+importus.to_csv('/Users/qianqiantang/Desktop/panjiva-code-main/Processed_data/USImport/monthly/USImport_monthly_2015.csv', index=False)
 
 
 #calculate the time it takes to run the code
