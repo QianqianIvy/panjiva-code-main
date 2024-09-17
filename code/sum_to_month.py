@@ -42,7 +42,7 @@ importus = pd.concat(fileData)
 print(importus.head(10))
 
 # export importus into csv file
-importus.to_csv('/Users/qianqiantang/Desktop/panjiva-code-main/Processed_data/USImport/monthly/USImport_monthly_2015.csv', index=False)
+importus.to_csv('/Users/qianqiantang/Desktop/panjiva-code-main/Processed_data/USImport/monthly/USImport_monthly_2015-2024.csv', index=False)
 
 
 #calculate the time it takes to run the code
